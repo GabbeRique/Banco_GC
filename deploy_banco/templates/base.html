@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ESSENCIAL para mobile -->
+  <title>{{ title or 'Mine Banco' }}</title>
+
+  <!-- ===== FONTES ===== -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- ===== FAVICONS ===== -->
+<link rel="icon" type="image/png" sizes="1024x1024" href="/static/ChatGPT Image 4_11_2025, 20_05_55.png">
+
+
+
+
+  <style>
+    /* ===== RESET E BASE ===== */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #0B132B, #1C2541);
+      color: white;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    /* ===== CONTAINER PRINCIPAL ===== */
+    .container {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .container.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    h1 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      color: #00C6FF;
+    }
+
+    input,
+    button {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    input {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    button {
+      background: #00C6FF;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #3A86FF;
+      transform: scale(1.02);
+    }
+
+    a {
+      display: inline-block;
+      margin-top: 12px;
+      color: #00C6FF;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .msg-erro {
+      color: #ff6b6b;
+      font-weight: bold;
+    }
+
+    .msg-sucesso {
+      color: #7CFC00;
+      font-weight: bold;
+    }
+
+    /* ===== LOADING ANIMATION ===== */
+    #loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #0B132B;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease;
+    }
+
+    .spinner {
+      border: 5px solid rgba(255, 255, 255, 0.1);
+      border-top: 5px solid #00C6FF;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    #loader.fade-out {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* ===== RESPONSIVIDADE ===== */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+
+      .container {
+        padding: 20px;
+        border-radius: 15px;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+
+      input,
+      button {
+        font-size: 14px;
+        padding: 10px;
+      }
+
+      a {
+        font-size: 14px;
+      }
+    }
+
+    @media (max-width: 350px) {
+      h1 {
+        font-size: 20px;
+      }
+
+      .container {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== ANIMAÇÃO DE CARREGAMENTO ===== -->
+  <div id="loader">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+  <div class="container" id="content">
+    {% block content %}{% endblock %}
+  </div>
+
+  <script>
+    // Simples efeito de carregamento com delay
+    window.addEventListener("load", () => {
+      const loader = document.getElementById("loader");
+      const container = document.getElementById("content");
+      setTimeout(() => {
+        loader.classList.add("fade-out");
+        container.classList.add("show");
+      }, 800);
+    });
+  </script>
+
+</body>
+
+</html>
