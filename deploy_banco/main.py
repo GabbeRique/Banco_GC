@@ -1,126 +1,183 @@
-from flask import Flask, render_template, request
-import main  # importa seu código original
+import os
+from datetime import date , datetime
 
-app = Flask(__name__)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-# Criar conta
-@app.route('/cadastrar', methods=['GET', 'POST'])
-def cadastrar():
-    if request.method == 'POST':
-        nome = request.form['nome']
-        cpf = request.form['cpf']
-        saldo = float(request.form['saldo'])
-        senha = request.form['senha']
 
-        # gera novo ID único
-        id_novo = main.prox_id
-        main.prox_id += 1
+data=date.today()
+hora=datetime.now()
 
-        # salva no dicionário
-        main.conta[id_novo] = [nome, cpf, saldo, senha]
 
-        return render_template('cadastrar.html', sucesso=True, nome=nome, id=id_novo)
 
-    return render_template('cadastrar.html', sucesso=False)
+conta = {
+    0: ['Banco_MG', '836.514.810-65', 15843529.5, 'adm2024']
+}
 
-# PIX etapa 1
-@app.route('/pix-etapa1', methods=['POST'])
-def pix_etapa1():
-    origem = int(request.form['origem'])
-    destino = int(request.form['destino'])
-    valor = float(request.form['valor'])
+# Próximo ID disponível
+prox_id = 1
 
-    if origem not in main.conta or destino not in main.conta:
-        return render_template('pix.html', erro="Conta inexistente.")
 
-    if valor <= 0:
-        return render_template('pix.html', erro="Valor inválido.")
 
-    saldo_atual = main.conta[origem][2]
-    if valor > saldo_atual:
-        return render_template('pix.html', erro="Saldo insuficiente.")
 
-    destino_nome = main.conta[destino][0]
-    destino_cpf = main.conta[destino][1]
 
-    return render_template(
-        'pix.html',
-        confirmar=True,
-        origem=origem,
-        destino=destino,
-        valor=valor,
-        destino_nome=destino_nome,
-        destino_cpf=destino_cpf,
-        saldo_atual=saldo_atual
-    )
 
-# PIX etapa 2
-@app.route('/pix', methods=['GET', 'POST'])
+
+def clear():
+    print("\033[H\033[J", end='')
+
+
+
+
 def pix():
-    if request.method == 'POST':
-        origem = int(request.form['origem'])
-        destino = int(request.form['destino'])
-        valor = float(request.form['valor'])
-        senha = request.form['senha']
 
-        if origem not in main.conta or destino not in main.conta:
-            return render_template('pix.html', erro="Conta inexistente.")
 
-        if senha != main.conta[origem][3]:
-            return render_template('pix.html', erro="Senha incorreta.")
+    clear()
 
-        if valor <= 0:
-            return render_template('pix.html', erro="Valor inválido.")
-        if valor > main.conta[origem][2]:
-            return render_template('pix.html', erro="Saldo insuficiente.")
 
-        main.conta[origem][2] -= valor
-        main.conta[destino][2] += valor
+    conta1 = int(input("Qual Seu id? "))
+    clear()
+    conta2 = int(input("Qual o id da conta que vai receber? "))
+    clear()
+    print(f'Nome da Conta que o dinheiro será transferido: {conta[conta2][0]}\nCPF da Conta que o dinheiro será transferido: {conta[conta2][1]}')
+    input()
+    clear()
+    res = int(input('<--- Etapa De Confirmação--->\n\n 1 - Confimar Ação\n 2 - Cancelar Ação\n\n <--- Etapa De Confirmação--->\n\n' ))
+    clear()
+    if res == 2:
+        print('Ação cancelada')
+    elif res == 1:
+        se = input('Digite sua Senha: ')
+        clear()
 
-        return render_template('pix.html', sucesso=True, valor=valor)
 
-    return render_template('pix.html')
+        while True:
+            print(f'Saldo Atual: {conta[conta1][2]}')
+            valor = float(input("Valor: "))
+            clear()
+            res = int(input('<--- Etapa De Confirmação--->\n\n 1 - Confimar Ação\n 2 - Alterar Valor\n\n <--- Etapa De Confirmação--->\n\n' ))
+            clear()
+            if res == 2:
+                clear()
+                print("Etapa de Alteração:")
+                clear()
+            elif res == 1:
+                if valor > conta[conta1][2]:
 
-# Mostrar dados
-@app.route('/mostrar', methods=['GET', 'POST'])
-def mostrar():
-    if request.method == 'POST':
-        id_c = int(request.form['id'])
-        cpf = request.form['cpf']
-        senha = request.form['senha']
 
-        if id_c not in main.conta:
-            return render_template('mostrar.html', erro="Conta não encontrada.")
+                    print('Erro, valor maior que seu saldo')
+                    input()
+                elif valor < 0:
+                    print('Erro, não pode enviar valores menores de zero')
+                    input()
+                else:
+                    print(f'Saldo Atual: {conta[conta1][2]}')
+                    conta[conta1][2] = conta[conta1][2] - valor
+                    print(f'Novo Saldo: {conta[conta1][2]}')
+                    input()
+                    conta[conta2][2] = conta[conta2][2] + valor
+                    clear()
+                break
+            else:
+                print('Tente Novamente')
+               
 
-        conta = main.conta[id_c]
-        if cpf == conta[1] and senha == conta[3]:
-            return render_template('mostrar.html', conta=conta, id=id_c)
+
+       
+    else:
+        print('Algo errado, Tente Novamente')
+       
+   
+
+
+
+
+def cadastrar(conta):
+
+
+
+
+    clear()
+    res = input('<--- Etapa De Confirmação--->\n\n 1 - Confimar Ação\n 2 - Negar Ação\n\n <--- Etapa De Confirmação--->\n\n' )
+    clear()
+    if res == '2':
+        print('Ação Negada')
+    elif res == '1':
+        if conta == '':
+            conta.clear()
         else:
-            return render_template('mostrar.html', erro="CPF ou senha incorretos.")
-    return render_template('mostrar.html')
-
-# 🔒 Deletar conta (senha mestra)
-@app.route('/deletar', methods=['GET', 'POST'])
-def deletar():
-    if request.method == 'POST':
-        senha_admin = request.form['senha_admin']
-        id_c = int(request.form['id'])
-
-        if senha_admin != "Costa15607":
-            return render_template('deletar.html', erro="Senha mestra incorreta.")
-
-        if id_c not in main.conta:
-            return render_template('deletar.html', erro="ID de conta inválido.")
-
-        deletada = main.conta.pop(id_c)
-        return render_template('deletar.html', sucesso=True, nome=deletada[0])
-
-    return render_template('deletar.html')
+            c_conta = []
+            dados = input('Nome Completo: ')
+            c_conta.append(dados)
+            dados = input('CPF: ')
+            c_conta.append(dados)
+            dados = float(input('Saldo: '))
+            c_conta.append(dados)
+            dados = input('Senha: ')
+            c_conta.append(dados)
+            clear()
+            conta.append(c_conta)
+            print(f'Seja Bem Vindo(a)\nSr(a). {c_conta[0]}\n\nSeu Id é: {len(conta) - 1}')
+            input()
+            clear()
+    else:
+        print('Não é possivel registrar')
+        input()
+        clear()
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+
+
+
+
+
+        input('Pressione Enter\n\n ')
+    return(conta)
+
+
+clear()
+var = input('Entrar\n')
+clear()
+while True:
+    inicil = input('<--- Mine banco --->\nProcedimentos: \n\n 1 - Criar Conta\n 2 - PIX\n 3 - Mostrar Dados\n 4 - Terminar\n\n <--- Etapa De Confirmação--->\n\n')
+    if inicil == '1':
+        cadastrar(conta)
+    elif inicil == '2':
+        pix()
+    elif inicil == '3':
+        clear()
+        id_p = int(input('Qual o Id da sua conta? '))
+
+
+        senhas = input('Qual sua senha? ')
+        cpf = input('Qual o CFP da conta? ')
+
+
+        if senhas == conta[id_p][3] and cpf == conta[id_p][1]:
+           
+            clear()
+            print(f'Conta:\n\nNome: {conta[id_p][0]}\nCPF: {conta[id_p][1]}\nSaldo: {conta[id_p][2]}\nSenha: {conta[id_p][3]}')
+
+
+        elif senhas != conta[id_p][3] or cpf != conta[id_p][1]:
+            clear()
+            print('Erro, Tente Novamente')
+        else:
+            clear()
+            print('Erro, Tente Novamente')      
+       
+        input()
+        clear()
+
+
+
+
+    elif inicil == '4':
+        clear()
+        print('Ate mais')
+        input()
+        break
+    else:
+        clear()
+        print('Código Não encontardo')
+        input()
