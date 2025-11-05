@@ -123,4 +123,6 @@ def deletar():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))  # usa a porta certa no Render
+    app.run(host='0.0.0.0', port=port)
+
