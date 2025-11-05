@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>PIX</h1>
+
+{% if erro %}
+  <p class="msg-erro">{{ erro }}</p>
+{% endif %}
+
+{% if sucesso %}
+  <p class="msg-sucesso">✅ PIX de R$ {{ valor }} enviado com sucesso!</p>
+  <a href="/"><button>Voltar ao Início</button></a>
+
+{% elif confirmar %}
+  <p><b>Nome do destinatário:</b> {{ destino_nome }}</p>
+  <p><b>CPF do destinatário:</b> {{ destino_cpf }}</p>
+  <p><b>Seu saldo atual:</b> R$ {{ saldo_atual }}</p>
+  <p><b>Valor da transferência:</b> R$ {{ valor }}</p>
+
+  <!-- 🔥 Aqui estava o erro: faltava action="/pix" -->
+  <form method="POST" action="/pix">
+    <input type="hidden" name="origem" value="{{ origem }}">
+    <input type="hidden" name="destino" value="{{ destino }}">
+    <input type="hidden" name="valor" value="{{ valor }}">
+    <input type="password" name="senha" placeholder="Digite sua senha" required>
+    <button type="submit">Confirmar PIX</button>
+  </form>
+
+  <a href="/pix"><button>Cancelar</button></a>
+
+{% else %}
+  <form method="POST" action="/pix-etapa1">
+    <input type="number" name="origem" placeholder="ID da Conta de Origem" required>
+    <input type="number" name="destino" placeholder="ID da Conta de Destino" required>
+    <input type="number" step="0.01" name="valor" placeholder="Valor do PIX" required>
+    <button type="submit">Avançar</button>
+  </form>
+  <a href="/">Voltar</a>
+{% endif %}
+{% endblock %}
